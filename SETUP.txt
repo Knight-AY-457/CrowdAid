@@ -1,0 +1,155 @@
+CrowdAid - Setup Guide
+=======================
+
+This file explains everything you need to do BEFORE running the project.
+Follow each step in order.
+
+
+STEP 1: Install Required Software
+-----------------------------------
+
+Make sure you have these installed on your computer:
+
+- Java 21 (JDK)
+  Download: https://adoptium.net/
+  After install, check: java --version
+
+- Node.js (v18 or higher)
+  Download: https://nodejs.org/
+  After install, check: node --version
+
+- Git
+  Download: https://git-scm.com/
+  After install, check: git --version
+
+
+STEP 2: Create a Supabase Account and Database
+------------------------------------------------
+
+We use Supabase for our PostgreSQL database (free tier).
+
+1. Go to https://supabase.com and sign up (use GitHub login, its easier)
+
+2. Click "New Project"
+   - Give it a name like "crowdaid"
+   - Set a strong database password (SAVE THIS somewhere, you will need it later)
+   - Choose the region closest to you
+   - Click "Create new project"
+   - Wait for it to finish setting up (~2 minutes)
+
+3. Get the database connection URI:
+   - In the dashboard, click "Connect" button (top right area)
+   - Select "Session pooler" tab
+   - Under "Connection string" -> "URI", copy the full URI
+   - It looks like this:
+     postgresql://postgres.abcdef:YOUR_PASSWORD@aws-0-ap-south-1.pooler.supabase.com:5432/postgres
+   - Replace [YOUR-PASSWORD] in the URI with the database password you set earlier
+
+
+STEP 3: Set Up Backend Environment Variables
+----------------------------------------------
+
+1. Open the backend/ folder
+2. Copy the file ".env.example" and rename the copy to ".env"
+3. Open .env and fill in these values:
+
+   DATABASE_URI=postgresql://postgres.YOUR_REF:YOUR_PASSWORD@YOUR_HOST:5432/postgres
+
+   (Paste the URI you copied from Supabase in step 2)
+
+   JWT_SECRET=just-type-any-random-long-string-here-make-it-32-chars-minimum
+
+   CORS_ALLOWED_ORIGINS=http://localhost:5173
+
+   ADMIN_EMAIL=admin@crowdaid.com
+   ADMIN_PASSWORD=Admin@12345678
+   ADMIN_PHONE=+919876543210
+
+   (Use your own email and phone for the admin account)
+
+
+STEP 4: Set Up Frontend Environment Variables
+-----------------------------------------------
+
+1. Open the frontend/ folder
+2. Copy ".env.example" and rename the copy to ".env.local"
+3. It should have this line:
+
+   VITE_API_BASE_URL=/api
+
+   (This is for local development, the Vite dev server proxies /api to the backend)
+
+
+STEP 5: Run the Backend
+-------------------------
+
+Open a terminal/command prompt in the backend/ folder and run:
+
+  On Mac/Linux:  ./mvnw spring-boot:run
+  On Windows:    mvnw.cmd spring-boot:run
+
+First time will take a few minutes because it downloads all dependencies.
+Wait until you see "Started BackendApplication" in the console output.
+
+The backend runs on http://localhost:8080
+
+NOTE: The database tables are created automatically by Flyway migrations when
+the backend starts. You do NOT need to run any SQL manually - everything is
+handled automatically on first startup.
+
+
+STEP 6: Run the Frontend
+--------------------------
+
+Open ANOTHER terminal in the frontend/ folder and run:
+
+  npm install       (only needed first time, installs dependencies)
+  npm run dev       (starts the dev server)
+
+The frontend runs on http://localhost:5173
+Open this URL in your browser.
+
+
+STEP 7: Test the App
+----------------------
+
+1. Open http://localhost:5173
+
+2. Click "Sign Up" and create a new account
+   - Fill in all fields including date of birth and security question
+   - Check the volunteer checkbox if you want to test volunteer features
+   - Accept the terms and submit
+
+3. After signup, you will be logged in automatically
+   - Try creating an SOS request from the dashboard
+
+4. To test admin features:
+   - Log out
+   - Log in with the ADMIN_EMAIL and ADMIN_PASSWORD you set in step 3
+   - You will see the admin dashboard with system stats
+
+5. To test volunteer features:
+   - Create another account with volunteer checked
+   - You will see nearby SOS requests to respond to
+
+
+TROUBLESHOOTING
+-----------------
+
+Q: Backend wont start, shows database connection error?
+A: Double check your DATABASE_URI in the .env file.
+   Make sure your Supabase project is active (check supabase.com dashboard).
+   Make sure you replaced [YOUR-PASSWORD] in the URI with the actual password.
+
+Q: Frontend shows "Network Error" when I try to do anything?
+A: Make sure the backend is running on port 8080.
+   Check that CORS_ALLOWED_ORIGINS includes http://localhost:5173
+
+Q: "Flyway migration failed" error?
+A: This means the database already has old tables from a previous run.
+   Go to Supabase SQL Editor and run: DROP SCHEMA public CASCADE; CREATE SCHEMA public;
+   Then restart the backend.
+
+Q: Location permission denied?
+A: The app needs browser location access for SOS features.
+   Click the lock icon in the browser address bar and allow location.

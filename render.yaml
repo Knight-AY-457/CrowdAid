@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: crowdaid-backend
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    autoDeployTrigger: commit
+    healthCheckPath: /api/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_PHONE
+        sync: false
+      - key: DB_MIN_IDLE
+        value: "1"
+      - key: DB_MAX_POOL_SIZE
+        value: "5"

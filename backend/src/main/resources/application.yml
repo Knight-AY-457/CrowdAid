@@ -1,0 +1,44 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: crowdaid-backend
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:crowdaid}?sslmode=require
+    username: ${DB_USERNAME:crowdaid_user}
+    password: ${DB_PASSWORD:crowdaid_password}
+    hikari:
+      maximum-pool-size: 5
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-me-to-a-very-long-random-secret-key-at-least-32-chars}
+    access-expiration-minutes: ${JWT_ACCESS_EXPIRATION_MINUTES:15}
+    refresh-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:14}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173}
+  bootstrap:
+    admin:
+      email: ${ADMIN_EMAIL:admin@crowdaid.local}
+      password: ${ADMIN_PASSWORD:change-this-admin-password}
+      first-name: ${ADMIN_FIRST_NAME:Platform}
+      last-name: ${ADMIN_LAST_NAME:Admin}
+      phone: ${ADMIN_PHONE:+919000000000}
+
+logging:
+  level:
+    org.springframework.security: INFO
+    org.hibernate.SQL: WARN
